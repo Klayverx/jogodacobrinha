@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Jogo da Cobrinha</title>
+</head>
+<style>
+    body {
+        background: #575757;
+        margin: 0;
+        overflow: hidden;
+    }
+    #stage {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        margin: auto;
+    }
+</style>
+<body>
+    <canvas id="stage" width="400" height="400"></canvas>
+    <script>
+
+        window.onload = function() {
+
+            var stage = document.getElementById('stage');
+            var ctx = stage.getContext("2d");  // parte gráfica do jogo
+
+            document.addEventListener("keydown", keyPush);   // quando acontecer algum evento chama a função
+            
+            setInterval(game, 80);  // intervalo pra uma função ser chamada em determinado tempo
+
+            const vel = 1;  // quantas casa ela anda
+
+            var vx = vy = 0;
+            var px = 7;
+            var py = 7;
+            var tp = 20;  // tamanho do quadrado
+            var qp = 20;  // quantidade de quadrados
+            var ax = ay = 15;  // posição da maça (apple)
+
+            function desenhaImagem(ax, ay) {
+                var imagem = new Image();
+                imagem.src = "assets/apple.png";
+                imagem.onload = function() {
+                    ctx.drawImage(imagem, ax*tp, ay*tp, 20, 20);
+                }
+            }
+
+            var trail = []; // rastro
+            tail = 5;  // tamanho inicial
+
+            function game() {
+
+                px += vx;
+                py += vy;
+            
+                //lado esquerdo
+                if(px < 0){
+                    px = qp - 1;
+                }
+
+                //lado direito
+                if(px > qp - 1){
+                    px = 0;
+                }
+
+                //lado de cima
+                if(py < 0){
+                    py = qp - 1;
+                }
+
+                //lado de baixo
+                if(py > qp - 1){
+                    py = 0;
+                }
+
+                ctx.fillStyle = 'darkslateblue';   // a cor de preenchimento
+                ctx.fillRect(0, 0, stage.width, stage.height);   // onde será pintado
+
+                desenhaImagem(ax, ay);
+
+                ctx.fillStyle = 'gray';
+                for (let i = 0; i < trail.length; i++) {
+                    ctx.fillRect(trail[i].x*tp, trail[i].y*tp, tp-1, tp-1);
+
+                    if(trail[i].x == px && trail[i].y == py){  //se a cobra bateu na cauda
+                        vx = vy = 0;
+                        tail = 5;
+                    }
+                }
+
+                trail.push({x: px, y: py})   // se não bateu nela mesma
+                while(trail.length > tail) {  //se o rastro for maior que o tamanho da cauda
+                    trail.shift();  // retira o elemento
+                }
+
+                if(ax == px && ay == py){  //comer a maçã
+                    tail++;
+                    //nova maçã
+                    desenhaImagem(ax = Math.floor(Math.random() * qp), ay = Math.floor(Math.random() * qp))
+                }
+            }
+            
+            // movimentos
+            function keyPush(event){
+                switch (event.keyCode) {   // qual tecla foi pressionada
+                // para down e right é velocidade positiva, pois ela começa no lado superior esquerdo
+                    case 37:  //left
+                        vx = -vel;
+                        vy = 0;
+                        break;
+                    case 38:  //up
+                        vx = 0;
+                        vy = -vel;
+                        break;
+                    case 39:  //right
+                        vx = vel;
+                        vy = 0;
+                        break;
+                    case 40:  //down
+                        vx = 0;
+                        vy = vel;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        
+    </script>
+</body>
+
+</html>
